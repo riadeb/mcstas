@@ -1,1 +1,1 @@
-# mcstas_course
+# McStas course
