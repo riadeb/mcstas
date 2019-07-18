@@ -58,18 +58,29 @@ EXTEND
 scatteringtype = hkl_info.type;
 %}
 
-COMPONENT psd_monitor1_4pi = PSD_monitor_4PI(
+COMPONENT psd_monitor_4pi = PSD_monitor_4PI(
     nx=201, 
     ny=201, 
     filename="fourpi")
  AT (0, 0, 0) RELATIVE PREVIOUS 
 
-COMPONENT psd_monitor_4pi = PSD_monitor_4PI(
+COMPONENT psd_monitor_4pi_transmitted = PSD_monitor_4PI(
     nx=201, 
     ny=201, 
-    filename="fourpi1")
-WHEN (scatteringtype=99) AT (0, 0, 0) RELATIVE PREVIOUS
+    filename="fourpi_t")
+WHEN (scatteringtype==116) AT (0, 0, 0) RELATIVE PREVIOUS
 
+COMPONENT psd_monitor_4pi_coh = PSD_monitor_4PI(
+    nx=201, 
+    ny=201, 
+    filename="fourpi_coh")
+WHEN (scatteringtype==99) AT (0, 0, 0) RELATIVE PREVIOUS
+
+COMPONENT psd_monitor_4pi_incoh = PSD_monitor_4PI(
+    nx=201, 
+    ny=201, 
+    filename="fourpi_incoh")
+WHEN (scatteringtype==105) AT (0, 0, 0) RELATIVE PREVIOUS
 
 FINALLY
 %{
