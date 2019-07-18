@@ -1,0 +1,78 @@
+
+/*******************************************************************************
+* Instrument: Laue Camera
+*
+* %I
+* Written by: riade.benbaki@polytechnique.edu
+* Date: 17/07/19
+* Origin: Ecole Polytechnique
+* 
+*
+* <instrument short description>
+*A monitor detecting only a certain type of scattering
+
+*******************************************************************************/
+DEFINE INSTRUMENT template_body_simple(Par1=1)
+
+DECLARE
+%{
+char scatteringtype;
+%}
+
+INITIALIZE
+%{
+%}
+
+TRACE
+
+COMPONENT origin = Progress_bar()
+AT (0, 0, 0) RELATIVE ABSOLUTE
+
+// insert components here (e.g. Insert -> Source -> ...)
+COMPONENT source_simple = Source_simple(
+    radius=0.05, 
+    dist=5, 
+    focus_xw=0.02, 
+    focus_yh=0.05, 
+    lambda0=2, 
+    dlambda=1.9)
+AT (0, 0, 0) RELATIVE PREVIOUS
+COMPONENT guide = Guide(
+    w1=0.02, 
+    h1=0.05, 
+    w2=0.02, 
+    h2=0.05, 
+    l=5, 
+    m=1)
+AT (0, 0, 2) RELATIVE source_simple
+
+SPLIT 20 COMPONENT single_crystal = Single_crystal(
+ reflections="Al2O3_sapphire.lau",
+ yheight=0.05, radius=0.01, mosaic=1, delta_d_d=1e-4,
+ az=4.757, ay=0, az=0, bx=2.3785, by=0, bz=-3.364,
+cx=0, cy=12.9877, cz=0,
+ p_transmit=0.1, order=1)
+AT (0, 0, 20.5) RELATIVE PREVIOUS
+EXTEND
+%{
+scatteringtype = hkl_info.type;
+%}
+
+COMPONENT psd_monitor1_4pi = PSD_monitor_4PI(
+    nx=201, 
+    ny=201, 
+    filename="fourpi")
+ AT (0, 0, 0) RELATIVE PREVIOUS 
+
+COMPONENT psd_monitor_4pi = PSD_monitor_4PI(
+    nx=201, 
+    ny=201, 
+    filename="fourpi1")
+WHEN (scatteringtype=99) AT (0, 0, 0) RELATIVE PREVIOUS
+
+
+FINALLY
+%{
+%}
+
+END
