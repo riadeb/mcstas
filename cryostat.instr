@@ -2,13 +2,13 @@
 * Instrument: Cryostat
 *
 * %I
-* Written by: riade.benbaki@polytechnique.edu
+* Written by: Riade Benbaki,riade.benbaki@polytechnique.edu
 * Date: 17/07/19
 * Origin: Ecole Polytechnique
 * 
 *
 * <instrument short description>
-*A modelisatoin of a cryostat with 5 layers : Gadolinium shield - Calorimeter - Gradient screen - 77k Shield - 300K vacuum tail
+*A modelisation of a cryostat with 5 layers : Gadolinium shield - Calorimeter - Gradient screen - 77k Shield - 300K vacuum tail
 
 *******************************************************************************/
 DEFINE INSTRUMENT template_body_simple(Par1=1)
