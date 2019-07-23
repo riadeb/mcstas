@@ -1,0 +1,118 @@
+/*******************************************************************************
+* Instrument: <instrument name>
+*
+* %I
+* Written by: <your name (email)>
+* Date: <current date>
+* Origin: <your institution>
+* %INSTRUMENT_SITE: Templates
+*
+* <instrument short description>
+*
+* %D
+* <instrument description>
+*
+* Example: <parameters=values>
+*
+* %P
+* <parameter1>: [<unit>] <parameter1 description>
+* ...
+*
+* %L
+* <reference/HTML link>
+*
+* %E
+*******************************************************************************/
+DEFINE INSTRUMENT template_body_simple(depth=0.05)
+
+DECLARE
+%{
+double scatteringtype ;
+%}
+
+INITIALIZE
+%{
+
+
+%}
+
+TRACE
+
+COMPONENT Origin = Progress_bar()
+AT (0, 0, 0) RELATIVE ABSOLUTE
+
+COMPONENT source = Source_div(
+        xwidth=0.01, yheight=0.01,focus_aw=0.05, focus_ah=0.05,
+        //xwidth=0.3, yheight=0.3,focus_aw=0.05, focus_ah=0.05, // Larger source for absorption images
+       lambda0 = 5,
+        dlambda = 0, flux = 1E13)
+AT (0,0,0) RELATIVE Origin
+
+
+
+// Gd definition
+COMPONENT Gd_incoherent = Incoherent_process(
+  sigma=2*151,packing_factor=1,unit_cell_volume=66.21)
+AT (0,0,0) ABSOLUTE
+
+COMPONENT Gd_powder = Powder_process(reflections="Gd.laz")
+AT (0,0,0) ABSOLUTE
+
+COMPONENT Gd = Union_make_material(
+  my_absorption=100*2*49700/66.21,
+  process_string="Gd_incoherent,Gd_powder")
+AT (0,0,0) ABSOLUTE
+
+
+
+// Aluminium
+COMPONENT Al_incoherent = Incoherent_process(
+  sigma=4*0.0082,packing_factor=1,unit_cell_volume=66.4)
+AT (0,0,0) ABSOLUTE
+
+COMPONENT Al_powder = Powder_process(reflections="Al.laz")
+AT (0,0,0) ABSOLUTE
+
+COMPONENT Al = Union_make_material(
+  my_absorption=100*4*0.231/66.4,
+  process_string="Al_incoherent")
+
+AT (0,0,0) ABSOLUTE
+// insert components here (e.g. Insert -> Source -> ...)
+COMPONENT sample_position = Arm()
+AT (0, 0, 2) RELATIVE Origin
+
+
+//Gd Shield
+
+COMPONENT gd_scattered_window = Union_box(
+  xwidth=0.05, yheight=0.05, zdepth=depth,
+  priority=63, material_string="Al")
+AT (0,0,2.5) RELATIVE sample_position
+
+
+COMPONENT master = Union_master()
+AT(0,0,0) RELATIVE sample_position
+ROTATED(0,0,0) RELATIVE sample_position
+EXTEND
+%{
+if (scattered_flag[1] == 0) scatteringtype = 1;
+
+%}
+
+
+
+COMPONENT l_monitor = L_monitor(
+    Lmin=4.5,
+	xwidth=0.07,
+	yheight=0.07,
+	filename="mon",
+    Lmax=5.5)
+WHEN (scatteringtype==1)
+AT (0, 0, depth) RELATIVE gd_scattered_window
+
+FINALLY
+%{
+%}
+
+END
