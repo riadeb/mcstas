@@ -1,28 +1,17 @@
 /*******************************************************************************
-* Instrument: <instrument name>
+* Instrument: Benchmark for material - Beer-Lambert law
 *
 * %I
-* Written by: <your name (email)>
-* Date: <current date>
-* Origin: <your institution>
-* %INSTRUMENT_SITE: Templates
+* Written by: Riade Benbaki,riade.benbaki@polytechnique.edu
+* Date: 23/07/19
+* Origin: Ecole Polytechnique
+* 
 *
 * <instrument short description>
-*
-* %D
-* <instrument description>
-*
-* Example: <parameters=values>
-*
-* %P
-* <parameter1>: [<unit>] <parameter1 description>
-* ...
-*
-* %L
-* <reference/HTML link>
-*
-* %E
+*An instrument to visualise Beer-Lambert law, to use while specifying an interval of depths to McStas
+
 *******************************************************************************/
+
 DEFINE INSTRUMENT template_body_simple(depth=0.05)
 
 DECLARE
