@@ -159,14 +159,14 @@ AT (0,0,0) ABSOLUTE
 
 // Gd definition
 COMPONENT Gd_incoherent = Incoherent_process(
-  sigma=2*151,packing_factor=1,unit_cell_volume=24.04)
+  sigma=2*151,packing_factor=1,unit_cell_volume=66.21)
 AT (0,0,0) ABSOLUTE
 
 COMPONENT Gd_powder = Powder_process(reflections="Gd.laz")
 AT (0,0,0) ABSOLUTE
 
 COMPONENT Gd = Union_make_material(
-  my_absorption=100*2*2.56/24.04,
+  my_absorption=100*2*49700/66.21,
   process_string="Gd_incoherent,Gd_powder")
 AT (0,0,0) ABSOLUTE
 
@@ -223,7 +223,7 @@ AT (0,(cal_top_height + cal_bottom_height)/2 + cal_toptube_height/2,0) RELATIVE 
 
 COMPONENT cal_tube_closing = Union_cylinder(
   radius=cal_toptube_diam /2  + cal_top_thick, yheight=cal_toptube_closingplate_thick+ 0.00001,
-  priority=56, material_string="Al")
+  priority=56, material_string="Cu")
 AT (0,(cal_top_height + cal_bottom_height)/2 + cal_toptube_height + cal_toptube_closingplate_thick/2,0) RELATIVE cal_shell
 
 //Gd Shield
