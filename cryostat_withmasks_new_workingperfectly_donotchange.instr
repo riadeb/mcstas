@@ -1,0 +1,478 @@
+/*******************************************************************************
+* Instrument: <instrument name>
+*
+* %I
+* Written by: <your name (email)>
+* Date: <current date>
+* Origin: <your institution>
+* %INSTRUMENT_SITE: Templates
+*
+* <instrument short description>
+*
+* %D
+* <instrument description>
+*
+* Example: <parameters=values>
+*
+* %P
+* <parameter1>: [<unit>] <parameter1 description>
+* ...
+*
+* %L
+* <reference/HTML link>
+*
+* %E
+*******************************************************************************/
+DEFINE INSTRUMENT template_body_simple(Par1=1)
+
+DECLARE
+%{
+double cal_diam = 150 * 0.001;
+double cal_thick = 0.2 * 0.001;
+double cal_top_height = 40 * 0.001;
+double cal_bottom_height = 70*0.001;
+double cal_bottom_thick = 3 * 0.001;
+double cal_top_thick = 2 * 0.001;
+double cal_toptube_height = 24 *0.001;
+double cal_toptube_diam = 70 * 0.001;
+double cal_toptube_closingplate_thick = 1 * 0.001;
+double cal_outer_height;
+double cal_inner_height;
+///
+double gd_diam = 130 * 0.001;
+double gd_thick = 0.25 * 0.001;
+double gd_height_outer;
+double gd_height_inner;
+
+double gd_incoming_window_angle = 60;
+double gd_incoming_window_height = 40 *0.001; //y dimension
+double gd_incoming_window_width; //x dimension
+double gd_incoming_center_z; //The z cooridnate of the box added to create the window
+double gd_incoming_depth_z; //The z-depth of the box added
+
+double gd_scattered_window_angle = 180;
+double gd_scattered_window_height = 40*0.001; //y dimension
+double gd_scattered_window_width; //x dimension
+double gd_scattered_center_z; //The z cooridnate of the box added to create the window
+double gd_scattered_depth_z; //The z-depth of the box added
+
+double gd_closing_thickness = 0.25 * 0.001;
+
+/////
+double grad_diam = 190 * 0.001;
+double grad_thick = 0.5 * 0.001;
+double grad_al_tickness = 50 * 0.000001;
+double grad_bottom_thick = 1 * 0.001;
+double grad_top_thick = 1 * 0.0001; //not specified in the email
+double grad_outer_height;
+double grad_inner_height;
+
+double grad_incoming_window_width; //x dimension
+double grad_incoming_center_z; //The z cooridnate of the box added to create the window
+double grad_incoming_depth_z; //The z-depth of the box added
+
+double grad_scattered_window_width; //x dimension
+double grad_scattered_center_z; //The z cooridnate of the box added to create the window
+double grad_scattered_depth_z; //The z-depth of the box added
+
+///////
+double s77_diam = 210 * 0.001;
+double s77_thick = 1 * 0.001;
+double s77_bottom_thick = 1 *0.001;
+double s77_top_thick = 1 *0.001;
+double s77_outer_height;
+double s77_inner_height;
+
+double s77_incoming_window_width; //x dimension
+double s77_incoming_center_z; //The z cooridnate of the box added to create the window
+double s77_incoming_depth_z; //The z-depth of the box added
+double s77_incoming_window_angle;
+
+
+double s77_scattered_window_width; //x dimension
+double s77_scattered_center_z; //The z cooridnate of the box added to create the window
+double s77_scattered_depth_z;
+double s77_scattered_window_angle;
+
+////
+double v300_diam = 230 * 0.001;
+double v300_thick = 5 * 0.001;
+double v300_bottom_thick = 30 *0.001;
+double v300_top_thick = 30 *0.001;
+double v300_outer_height;
+double v300_inner_height;
+
+double v300_incoming_window_width; //x dimension
+double v300_incoming_center_z; //The z cooridnate of the box added to create the window
+double v300_incoming_depth_z; //The z-depth of the box added
+double v300_incoming_window_angle;
+double v300_incoming_thick = 0.5 * 0.001;
+
+
+double v300_scattered_window_width; //x dimension
+double v300_scattered_center_z; //The z cooridnate of the box added to create the window
+double v300_scattered_depth_z;
+double v300_scattered_window_angle;
+double v300_scattered_thick = 0.75 * 0.001;
+
+
+
+double t1,t2;
+char option_string[512];
+
+
+%}
+
+INITIALIZE
+%{
+t1 = (1+1 - 0.5)/sqrt((2*1.602E-19 * 1E-3 * 5)/1.675E-27);
+t2 = (1+ 1 +0.5)/sqrt((2*1.602E-19 * 1E-3 * 5)/1.675E-27);
+sprintf(option_string, "banana, theta limits=[12.0,134.0] bins=366, t limits=[%lf,%lf] bins=500",t1,t2);
+
+
+
+cal_outer_height = cal_top_height + cal_bottom_height;
+cal_inner_height = 1;
+
+
+gd_incoming_window_width = (gd_diam + 2.0*gd_thick)*sin(DEG2RAD*(gd_incoming_window_angle/2.0));
+gd_scattered_window_width = (gd_diam + 2.0*gd_thick)*sin(DEG2RAD*(gd_scattered_window_angle/2.0));
+gd_incoming_center_z = -0.000001 - ((gd_diam + 2.0*gd_thick)*(1.0+ cos(DEG2RAD*(gd_incoming_window_angle/2.0)))/4.0);
+gd_scattered_center_z = (gd_diam + 2.0*gd_thick)*(1.0+ cos(DEG2RAD*(gd_scattered_window_angle/2.0)))/4.0 +0.000001;
+gd_incoming_depth_z = (gd_diam + 2.0*gd_thick)*(1.0- cos(DEG2RAD*(gd_incoming_window_angle/2.0)))/2.0;
+gd_scattered_depth_z = (gd_diam + 2.0*gd_thick)*(1.0- cos(DEG2RAD*(gd_scattered_window_angle/2.0)))/2.0;
+gd_height_outer = cal_outer_height - 0.005;
+gd_height_inner = 2;
+
+
+grad_incoming_window_width = (grad_diam + 2*grad_thick)*sin(DEG2RAD*gd_incoming_window_angle/2.0);
+grad_scattered_window_width = (grad_diam + 2*grad_thick)*sin(DEG2RAD*gd_scattered_window_angle/2.0);
+grad_incoming_center_z =-0.000001 -(grad_diam + 2*grad_thick)*(1+ cos(DEG2RAD*gd_incoming_window_angle/2.0))/4.0;
+grad_scattered_center_z = (grad_diam + 2*grad_thick)*(1+ cos(DEG2RAD*gd_scattered_window_angle/2.0))/4.0 + 0.000001;
+grad_incoming_depth_z = (grad_diam + 2*grad_thick)*(1- cos(DEG2RAD*gd_incoming_window_angle/2.0))/2.0;
+grad_scattered_depth_z = (grad_diam + 2*grad_thick)*(1- cos(DEG2RAD*gd_scattered_window_angle/2.0))/2.0;
+grad_outer_height = cal_outer_height  + 0.005;
+grad_inner_height = 3;
+
+s77_incoming_window_angle = gd_incoming_window_angle + 5;
+s77_scattered_window_angle = gd_scattered_window_angle + 5;
+s77_incoming_window_width = (s77_diam + 2*s77_thick)*sin(DEG2RAD*s77_incoming_window_angle/2);
+s77_scattered_window_width = (s77_diam + 2*s77_thick)*sin(DEG2RAD*s77_scattered_window_angle/2);
+s77_incoming_center_z = -0.000001-(s77_diam + 2*s77_thick)*(1+ cos(DEG2RAD*s77_incoming_window_angle/2))/4;
+s77_scattered_center_z = (s77_diam + 2*s77_thick)*(1+ cos(DEG2RAD*s77_scattered_window_angle/2))/4+0.000001;
+s77_incoming_depth_z = (s77_diam + 2*s77_thick)*(1- cos(DEG2RAD*s77_incoming_window_angle/2))/2;
+s77_scattered_depth_z = (s77_diam + 2*s77_thick)*(1- cos(DEG2RAD*s77_scattered_window_angle/2))/2;
+s77_outer_height = cal_outer_height  + 0.01;
+s77_inner_height = 4;
+
+v300_incoming_window_angle = gd_incoming_window_angle + 10;
+v300_scattered_window_angle = gd_scattered_window_angle + 10;
+v300_incoming_window_width = (v300_diam + 2*v300_thick)*sin(DEG2RAD*v300_incoming_window_angle/2);
+v300_scattered_window_width = (v300_diam + 2*v300_thick)*sin(DEG2RAD*v300_scattered_window_angle/2);
+v300_incoming_center_z = -0.000001-(v300_diam + 2*v300_thick)*(1+ cos(DEG2RAD*v300_incoming_window_angle/2))/4;
+v300_scattered_center_z = (v300_diam + 2*v300_thick)*(1+ cos(DEG2RAD*v300_scattered_window_angle/2))/4+0.000001;
+v300_incoming_depth_z = (v300_diam + 2*v300_thick)*(1- cos(DEG2RAD*v300_incoming_window_angle/2))/2;
+v300_scattered_depth_z = (v300_diam + 2*v300_thick)*(1- cos(DEG2RAD*v300_scattered_window_angle/2))/2;
+v300_outer_height = cal_outer_height + 0.015;
+v300_inner_height = 5;
+
+%}
+
+TRACE
+
+COMPONENT Origin = Progress_bar()
+AT (0, 0, 0) RELATIVE ABSOLUTE
+
+COMPONENT source = Source_div(
+        xwidth=0.03, yheight=0.05,focus_aw=0.05, focus_ah=0.05,
+        //xwidth=0.3, yheight=0.3,focus_aw=0.05, focus_ah=0.05, // Larger source for absorption images
+        E0 = 5,
+        dE = 0, flux = 1E13)
+AT (0,0,0) RELATIVE Origin
+
+// Aluminium
+COMPONENT Al_incoherent = Incoherent_process(
+  sigma=4*0.0082,packing_factor=1,unit_cell_volume=66.4)
+AT (0,0,0) ABSOLUTE
+
+COMPONENT Al_powder = Powder_process(reflections="Al.laz")
+AT (0,0,0) ABSOLUTE
+
+COMPONENT Al = Union_make_material(
+  my_absorption=100*4*0.231/66.4,
+  process_string="Al_incoherent,Al_powder")
+AT (0,0,0) ABSOLUTE
+
+
+// Gd definition
+COMPONENT Gd_incoherent = Incoherent_process(
+  sigma=2*151,packing_factor=1,unit_cell_volume=66.21)
+AT (0,0,0) ABSOLUTE
+
+COMPONENT Gd_powder = Powder_process(reflections="Gd.laz")
+AT (0,0,0) ABSOLUTE
+
+COMPONENT Gd = Union_make_material(
+  my_absorption=100*2*49700/66.21,
+  process_string="Gd_incoherent,Gd_powder")
+AT (0,0,0) ABSOLUTE
+
+
+// Cu definition
+COMPONENT Cu_incoherent = Incoherent_process(
+  sigma=4*0.55,packing_factor=1,unit_cell_volume=47.22)
+AT (0,0,0) ABSOLUTE
+
+COMPONENT Cu_powder = Powder_process(reflections="Cu.laz")
+AT (0,0,0) ABSOLUTE
+
+COMPONENT Cu = Union_make_material(
+  my_absorption=100*4*3.78/47.22,
+  process_string="Cu_incoherent,Cu_powder")
+AT (0,0,0) ABSOLUTE
+
+
+
+// insert components here (e.g. Insert -> Source -> ...)
+COMPONENT sample_position = Arm()
+AT (0, 0, 1) RELATIVE Origin
+
+////Calorimeter
+COMPONENT cal_shell = Union_cylinder(
+  radius=cal_diam/2 + cal_thick, yheight=cal_outer_height,
+  priority=50, material_string="Al")
+AT (0,(cal_top_height - cal_bottom_height)/2,0) RELATIVE sample_position
+
+COMPONENT cal_inner = Union_cylinder(
+  radius=cal_diam/2, yheight=cal_inner_height,
+  priority=51, material_string="Vacuum", visualize = 0)
+AT (0,0,0) RELATIVE cal_shell
+
+COMPONENT cal_bottom_plate = Union_cylinder(
+  radius=cal_diam/2 + cal_thick - 0.0001, yheight=cal_bottom_thick + 0.001,
+  priority=52, material_string="Al")
+AT (0,-(cal_outer_height)/2 - cal_bottom_thick/2,0) RELATIVE cal_shell
+
+COMPONENT cal_top_plate = Union_cylinder(
+  radius=cal_diam/2 + cal_thick - 0.0001, yheight=cal_top_thick + 0.001,
+  priority=53, material_string="Al")
+AT (0,(cal_outer_height)/2 + cal_top_thick/2,0) RELATIVE cal_shell
+
+COMPONENT cal_tube_shell = Union_cylinder(
+  radius=cal_toptube_diam /2 + cal_top_thick, yheight=cal_toptube_height+ 0.001,
+  priority=54, material_string="Al")
+AT (0,(cal_outer_height)/2 + cal_toptube_height/2 ,0) RELATIVE cal_shell
+
+COMPONENT cal_tube_inner = Union_cylinder(
+  radius=cal_toptube_diam /2 - cal_toptube_closingplate_thick, yheight=cal_toptube_height+ 0.002,
+  priority=55, material_string="Vacuum")
+AT (0,(cal_outer_height)/2 + cal_toptube_height/2,0) RELATIVE cal_shell
+
+COMPONENT cal_tube_closing = Union_cylinder(
+  radius=cal_toptube_diam /2  -0.0001, yheight=cal_toptube_closingplate_thick+ 0.001,
+  priority=56, material_string="Cu")
+AT (0,(cal_outer_height)/2 + cal_toptube_height + cal_toptube_closingplate_thick/2,0) RELATIVE cal_shell 
+
+//Gd Shield
+COMPONENT gd_shell = Union_cylinder(
+  radius=gd_diam/2 + gd_thick, yheight=gd_height_outer ,
+  priority=60, material_string="Gd")
+AT (0,0,0) RELATIVE cal_shell
+
+COMPONENT gd_inner = Union_cylinder(
+  radius=gd_diam/2, yheight=gd_height_inner,
+  priority=61, material_string="Vacuum",visualize=0)
+AT (0,0,0) RELATIVE gd_shell
+
+COMPONENT gd_incoming_window = Union_box(
+  xwidth=gd_incoming_window_width, yheight=gd_incoming_window_height, zdepth=gd_incoming_depth_z,
+  priority=62, material_string="Vacuum",visualize=0)
+AT (0,-(cal_top_height - cal_bottom_height)/2,gd_incoming_center_z - 0.0001) RELATIVE gd_shell
+
+
+COMPONENT gd_scattered_window = Union_box(
+  xwidth=gd_scattered_window_width, yheight=gd_scattered_window_height, zdepth=gd_scattered_depth_z,
+  priority=63, material_string="Vacuum",visualize=0)
+AT (0,-(cal_top_height - cal_bottom_height)/2,gd_scattered_center_z + 0.0001) RELATIVE gd_shell
+
+
+COMPONENT gd_bottom_plate = Union_cylinder(
+  radius=gd_diam/2 + gd_thick - 0.0001, yheight=gd_closing_thickness + 0.00002,
+  priority=64, material_string="Gd")
+AT (0,-(gd_height_outer)/2 - gd_closing_thickness/2,0) RELATIVE gd_shell
+
+COMPONENT gd_top_plate = Union_cylinder(
+  radius=gd_diam/2 + gd_thick -0.0001, yheight=gd_closing_thickness + 0.00002,
+  priority=65, material_string="Gd")
+AT (0,(gd_height_outer)/2 + gd_closing_thickness/2,0) RELATIVE gd_shell
+
+COMPONENT gd_top_hole = Union_cylinder(
+  radius=cal_toptube_diam/2, yheight=gd_closing_thickness + 0.00003,
+  priority=66, material_string="Vacuum")
+AT (0,(gd_height_outer )/2 + gd_closing_thickness/2-0,0) RELATIVE gd_shell
+
+
+////Grad screen
+COMPONENT grad_shell = Union_cylinder(
+  radius=grad_diam/2 + grad_thick, yheight=grad_outer_height,
+  priority=40, material_string="Al")
+AT (0,0,0) RELATIVE cal_shell
+
+COMPONENT grad_inner = Union_cylinder(
+  radius=grad_diam/2, yheight=grad_inner_height,
+  priority=41, material_string="Vacuum",visualize=0)
+AT (0,0,0) RELATIVE grad_shell
+
+COMPONENT grad_incoming_window = Union_box(
+  xwidth=grad_incoming_window_width, yheight=gd_incoming_window_height, zdepth=grad_incoming_depth_z,
+  priority=42, material_string="Vacuum",visualize=0)
+AT (0,-(cal_top_height - cal_bottom_height)/2,grad_incoming_center_z) RELATIVE grad_shell
+
+COMPONENT grad_outer_window_cylinder = Union_cylinder(
+  radius=grad_diam/2 - 0.001, yheight=grad_inner_height + 10,
+  priority=43, material_string="Al",visualize=1)
+AT (0,0,0) RELATIVE grad_shell
+
+COMPONENT grad_inner_window_cylinder= Union_cylinder(
+  radius=grad_diam/2 - grad_al_tickness -0.001, yheight=grad_inner_height + 15,
+  priority=44, material_string="Vacuum",visualize=0)
+AT (0,0,0) RELATIVE grad_shell
+
+COMPONENT grad_incoming_window_mask = Union_box(
+  xwidth=grad_incoming_window_width + 0.0001, yheight=gd_incoming_window_height +0.0001, zdepth=grad_incoming_depth_z,
+  priority=3, material_string="Vacuum",visualize=0, mask_string="grad_outer_window_cylinder",mask_setting="ANY")
+AT (0,-(cal_top_height - cal_bottom_height)/2,grad_incoming_center_z+0.001) RELATIVE grad_shell
+
+
+
+COMPONENT grad_scattered_window = Union_box(
+  xwidth=grad_scattered_window_width + 0.001, yheight=gd_scattered_window_height+0.001, zdepth=grad_scattered_depth_z+0.005,
+  priority=41.5, material_string="Vacuum",visualize=1)
+AT (0,-(cal_top_height - cal_bottom_height)/2,grad_scattered_center_z) RELATIVE grad_shell
+
+
+COMPONENT grad_scattered_window_mask = Union_box(
+  xwidth=grad_scattered_window_width + 0.0001, yheight=gd_scattered_window_height+ 0.0001, zdepth=grad_scattered_depth_z,
+  priority=4, material_string="Vacuum",visualize=0,mask_string="grad_outer_window_cylinder",mask_setting="ANY")
+AT (0,-(cal_top_height - cal_bottom_height)/2,grad_scattered_center_z+ 0.0001) RELATIVE grad_shell
+
+
+
+COMPONENT grad_bottom_plate = Union_cylinder(
+  radius=grad_diam/2 + grad_thick - 0.0001, yheight=grad_bottom_thick + 0.00001,
+  priority=46, material_string="Al")
+AT (0,-(grad_outer_height)/2 - grad_bottom_thick/2,0) RELATIVE grad_shell
+
+COMPONENT grad_top_plate = Union_cylinder(
+  radius=grad_diam/2 + grad_thick - 0.0001, yheight=grad_top_thick + 0.00001,
+  priority=47, material_string="Cu")
+AT (0,(grad_outer_height)/2 + grad_top_thick/2,0) RELATIVE grad_shell 
+
+
+/// 77K Shield
+COMPONENT s77_shell = Union_cylinder(
+  radius=s77_diam/2 + s77_thick + s77_thick, yheight=s77_outer_height,
+  priority=30, material_string="Al")
+AT (0,0,0) RELATIVE cal_shell
+
+COMPONENT s77_inner = Union_cylinder(
+  radius=s77_diam/2, yheight=s77_inner_height,
+  priority=31, material_string="Vacuum", visualize=0)
+AT (0,0,0) RELATIVE s77_shell
+
+COMPONENT s77_incoming_window = Union_box(
+  xwidth=s77_incoming_window_width, yheight=gd_incoming_window_height, zdepth=s77_incoming_depth_z,
+  priority=32, material_string="Vacuum",visualize=0)
+AT (0,-(cal_top_height - cal_bottom_height)/2,s77_incoming_center_z-0.009) RELATIVE s77_shell
+
+COMPONENT s77_scattered_window = Union_box(
+  xwidth=s77_scattered_window_width, yheight=gd_scattered_window_height, zdepth=s77_scattered_depth_z,
+  priority=33, material_string="Vacuum",visualize=0)
+AT (0,-(cal_top_height - cal_bottom_height)/2,s77_scattered_center_z+0.001) RELATIVE s77_shell
+
+
+
+COMPONENT s77_bottom_plate = Union_cylinder(
+  radius=s77_diam/2 + s77_thick/2, yheight=s77_bottom_thick + 0.001,
+  priority=34, material_string="Al")
+AT (0,-s77_outer_height/2 - s77_bottom_thick/2,0) RELATIVE s77_shell
+
+COMPONENT s77_top_plate = Union_cylinder(
+  radius=s77_diam/2 + s77_thick/2, yheight=s77_top_thick + 0.001,
+  priority=35, material_string="Al")
+AT (0,s77_outer_height/2 + s77_top_thick/2,0) RELATIVE s77_shell
+//300K Vacuum
+COMPONENT v300_shell = Union_cylinder(
+  radius=v300_diam/2 + v300_thick, yheight=v300_outer_height,
+  priority=20, material_string="Al")
+AT (0,0,0) RELATIVE cal_shell
+
+COMPONENT v300_inner = Union_cylinder(
+  radius=v300_diam/2, yheight=v300_inner_height,
+  priority=21, material_string="Vacuum",visualize=0)
+AT (0,0,0) RELATIVE v300_shell
+
+COMPONENT v300_incoming_window = Union_box(
+  xwidth=s77_incoming_window_width, yheight=gd_incoming_window_height, zdepth=v300_incoming_depth_z,
+  priority=22, material_string="Al",visualize=0)
+AT (0,-(cal_top_height - cal_bottom_height)/2,v300_incoming_center_z-0.001) RELATIVE v300_shell
+
+COMPONENT v300_incoming_window_inner = Union_box(
+  xwidth=s77_incoming_window_width+0.000001, yheight=gd_incoming_window_height +0.000001, zdepth=v300_incoming_depth_z - v300_incoming_thick ,
+  priority=23, material_string="Vacuum",visualize=0)
+AT (0,-(cal_top_height - cal_bottom_height)/2,v300_incoming_center_z-0.001) RELATIVE v300_shell
+COMPONENT v300_shell_mask1 = Union_cylinder(
+  radius=v300_diam/2 + v300_thick, yheight=v300_inner_height + 0.2,
+  priority=7, material_string="Vacuum",mask_string="v300_incoming_window")
+AT (0,0,-0.001) RELATIVE v300_shell
+
+COMPONENT v300_scattered_window = Union_box(
+  xwidth=v300_scattered_window_width, yheight=gd_scattered_window_height, zdepth=v300_scattered_depth_z,
+  priority=24, material_string="Al",visualize=0)
+AT (0,-(cal_top_height - cal_bottom_height)/2,v300_scattered_center_z+0.001) RELATIVE v300_shell
+
+COMPONENT v300_scattered_window_inner = Union_box(
+  xwidth=v300_scattered_window_width+0.000001, yheight=gd_scattered_window_height+0.000001, zdepth=v300_scattered_depth_z - v300_scattered_thick,
+  priority=25, material_string="Vacuum",visualize=0)
+AT (0,-(cal_top_height - cal_bottom_height)/2,v300_scattered_center_z+0.001) RELATIVE v300_shell
+COMPONENT v300_shell_mask2 = Union_cylinder(
+  radius=v300_diam/2 + v300_thick, yheight=v300_inner_height + 0.1,
+  priority=8, material_string="Vacuum",mask_string="v300_scattered_window")
+AT (0,0,+0.0001) RELATIVE v300_shell
+
+
+COMPONENT v300_bottom_plate = Union_cylinder(
+  radius=v300_diam/2 + v300_thick/2, yheight=v300_bottom_thick + 0.001,
+  priority=26, material_string="Al")
+AT (0,-v300_outer_height/2 - v300_bottom_thick/2,0) RELATIVE v300_shell
+
+COMPONENT v300_top_plate = Union_cylinder(
+  radius=v300_diam/2 + v300_thick/2, yheight=v300_top_thick + 0.001,
+  priority=27, material_string="Al")
+AT (0,v300_outer_height/2 + v300_top_thick/2,0) RELATIVE v300_shell
+
+
+
+COMPONENT scattering_zx = Union_logger_2D_space(
+  D_direction_1="z",D1_min=-0.15, D1_max=0.15, n1=300,
+  D_direction_2="x",D2_min=-0.15, D2_max=0.15, n2=300,
+  filename="scattering_zx.dat")
+AT (0,0,0) RELATIVE sample_position
+
+COMPONENT scattering_zy = Union_logger_2D_space(
+  D_direction_1="z",D1_min=-0.15, D1_max=0.15, n1=300,
+  D_direction_2="y",D2_min=-0.15, D2_max=0.15, n2=300,
+  filename="scattering_zy.dat")
+AT (0,0,0) RELATIVE sample_position
+
+
+
+COMPONENT master = Union_master()
+AT(0,0,0) RELATIVE sample_position
+ROTATED(0,0,0) RELATIVE sample_position
+
+FINALLY
+%{
+%}
+
+END
